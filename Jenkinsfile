@@ -3,7 +3,7 @@ pipeline {
         label 'cluster-manager'
     }
     parameters {
-        booleanParam(name: 'FORCE_PUSH', defaultValue: false, description: 'Force push')
+        booleanParam(name: 'PUSH', defaultValue: true, description: 'Push chart on repo')
         string(name: 'REPO', defaultValue: 'https://nexus.valuya.com/service/rest/v1/components?repository=helm', description: 'Alternative deployment repo')
         credentials(name: 'REPO_CREDENTIAL',description: 'Repo credentials',credentialType: "Username with password", required: false,
          defaultValue: 'jenkins-jenkins-nexus-credentials')
@@ -15,8 +15,7 @@ pipeline {
     stages {
         stage ('Push') {
             when { anyOf {
-              environment name: 'BRANCH_NAME', value: 'master'
-              expression { return params.FORCE_PUSH == true }
+              expression { return params.PUSH == true }
             } }
             steps {
                 container('manager') {
