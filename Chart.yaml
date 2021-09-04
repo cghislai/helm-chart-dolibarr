@@ -1,0 +1,22 @@
+apiVersion: v2
+name: dolibarr
+version: 1.0.1
+kubeVersion: '>= 1.17.0-any'
+description: Dolibarr stack
+type: application
+keywords:
+  - jenkins
+home: https://jenkins.valuya.be
+sources:
+  - https://gitlab.valuya.be
+#dependencies: # A list of the chart requirements (optional)
+
+maintainers: # (optional)
+  - name: Charly Ghislain
+    email: charlyghislain@gmail.com
+    url: https://github.com/cghislai
+#icon: A URL to an SVG or PNG image to be used as an icon (optional).
+#appVersion: The version of the app that this contains (optional). This needn't be SemVer.
+#deprecated: Whether this chart is deprecated (optional, boolean)
+#annotations:
+#  example: A list of annotations keyed by name (optional).

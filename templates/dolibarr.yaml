@@ -1,0 +1,84 @@
+# @formatter:off
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Release.Name}}-dolibarr
+spec:
+  type: ClusterIP
+  selector:
+    app: dolibarr
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-dolibarr
+  labels:
+    app: dolibarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels: # Pods labels to match
+      app: dolibarr
+  template: # Pods template
+    metadata:
+      labels:
+        app: dolibarr
+    spec:
+      securityContext:
+        fsGroup: 1000
+      {{with .Values.deployment.imagePullSecrets}}
+      imagePullSecrets: {{. | toJson}}
+      {{end}}
+      containers:
+        - name: dolibarr
+          image: {{.Values.deployment.imageName}}:{{.Values.deployment.imageTag}}
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: {{.Release.Name}}-dolibarr-config
+          volumeMounts:
+            - mountPath: /var/run/secrets
+              name: dolibarr-secrets
+            {{ if .Values.documents.persistence.enabled }}
+            - mountPath: /var/www/documents
+              name: dolibarr-documents
+            {{ end }}
+          ports:
+            - containerPort: 80 # http
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "256Mi"
+      volumes:
+        - name: dolibarr-secrets
+          projected:
+            sources:
+              - secret:
+                  name: {{.Release.Name}}-dolibarr-secrets
+                  items:
+                    - key: admin-password
+                      path: admin-password
+              - secret:
+                  name: {{.Release.Name}}-dolibarr-db-secrets
+                  items:
+                    - key: db-password
+                      path: db-password
+                    - key: db-root-password
+                      path: db-root-password
+        {{ if .Values.documents.persistence.enabled }}
+        - name: dolibarr-documents
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-dolibarr-documents
+        {{ end }}
+---
+
+
+

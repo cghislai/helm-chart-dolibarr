@@ -1,0 +1,147 @@
+# @formatter:off
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Release.Name}}-dolibarr-db
+  labels: {{ .Values.db.service.labels  | toJson }}
+  annotations: {{ .Values.db.service.annotations  | toJson }}
+spec:
+  selector:
+    app: dolibarr-db
+  ports:
+    - name: mysql
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
+
+---
+
+
+{{ if not .Values.db.secrets.skip }}
+
+  {{-  $secretName := printf "%s-%s" .Release.Name "dolibarr-db-secrets" -}}
+  {{-  $dbPassword := "" -}}
+  {{-  $dbRootPassword := "" -}}
+
+  {{- $secret := (lookup "v1" "Secret" .Release.Namespace $secretName) -}}
+  {{- if $secret }}
+    {{- $dbPassword = index $secret.data "db-password" -}}
+    {{- $dbRootPassword = index $secret.data "db-root-password" -}}
+  {{- else -}}
+    {{- if .Values.db.secrets.generate -}}
+      {{- $dbPassword = randAlphaNum 24 | b64enc }}
+      {{- $dbRootPassword = randAlphaNum 24 | b64enc -}}
+    {{- else -}}
+      {{- $dbPassword = .Values.db.secrets.password | b64enc -}}
+      {{- $dbRootPassword = .Values.db.secrets.rootPassword | b64enc -}}
+    {{- end -}}
+  {{- end -}}
+
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{.Release.Name}}-dolibarr-db-secrets
+data:
+  db-root-password:  {{ $dbRootPassword  }}
+  db-password: {{ $dbPassword }}
+
+
+{{ end }}
+
+
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{.Release.Name}}-dolibarr-db-config
+data:
+  MYSQL_ROOT_PASSWORD_FILE: '/var/run/secrets/db-root-password'
+  MYSQL_DATABASE: 'dolibarr'
+  MYSQL_USER: 'dolibarr'
+  MYSQL_PASSWORD_FILE: '/var/run/secrets/db-password'
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-dolibarr-db
+  labels:
+    app: dolibarr-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels: # Pods labels to match
+      app: dolibarr-db
+  strategy:
+    type: Recreate
+  template: # Pods template
+    metadata:
+      labels:
+        app: dolibarr-db
+    spec:
+      {{with .Values.deployment.imagePullSecrets}}
+      imagePullSecrets: {{. | toJson}}
+      {{end}}
+      containers:
+        - name: dolibarr
+          image: mariadb:10
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: {{.Release.Name}}-dolibarr-db-config
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: dolibarr-db-data
+            - mountPath: /var/run/secrets
+              name: dolibarr-db-secrets
+            {{ if .Values.db.provision.enabled }}
+            - mountPath: /docker-entrypoint-initdb.d/provision.sql
+              name: dolibarr-db-provision
+              subPath: {{ .Values.db.provision.subPath }}
+              readOnly: true
+            {{ end }}
+          ports:
+            - containerPort: 3306 # mysql
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "256Mi"
+      volumes:
+        - name: dolibarr-db-secrets
+          secret:
+            secretName: {{.Release.Name}}-dolibarr-db-secrets
+        - name: dolibarr-db-data
+          persistentVolumeClaim:
+            claimName: {{.Release.Name}}-dolibarr-db-data
+        {{ if .Values.db.provision.enabled }}
+        - name: dolibarr-db-provision
+        {{ if .Values.db.provision.hostPath }}
+          hostPath:
+            path: {{ .Values.db.provision.hostPath }}
+            type: Directory
+        {{ else if .Values.db.provision.claimName }}
+          persistentVolumeClaim:
+            claimName: {{.Values.db.provision.claimName}}
+        {{ end }}
+        {{ end }}
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{.Release.Name}}-dolibarr-db-data
+  labels: {{ .Values.db.persistence.labels  | toJson }}
+  annotations: {{ .Values.db.persistence.annotations  | toJson }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.db.persistence.size }}
+
+---

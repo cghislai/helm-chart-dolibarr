@@ -1,0 +1,44 @@
+db:
+
+  #   Unspecified secrets will be randomly generated if they dont exist.
+  #   Password specified here (both) will overwrite the secrets. Delete secrest to regenerate passwords
+  secrets:
+    skip: false
+    generate: true
+    password:
+    rootPassword:
+
+  provision:
+    enabled: false
+    subPath: 'billing-srl-dump-20210208.sql'
+    # Hostpath or claimName
+    # See README to mount local path. Its minkube
+    hostPath: '/minkube-data'
+    claimName:
+
+  persistence:
+    labels: { }
+    annotations: { }
+    size: 3Gi
+
+  service:
+    labels: { }
+    annotations: { }
+
+ingress:
+  host: 'dolibarr.cgcloud.local'
+  certIssuer: 'selfsigned-ca-issuer'
+
+deployment:
+  imageName: docker.valuya.com/dolibarr
+  imageTag: 7
+
+secrets:
+  skip: false
+
+documents:
+  persistence:
+    enabled: false
+    labels: { }
+    annotations: { }
+    size: 1Gi

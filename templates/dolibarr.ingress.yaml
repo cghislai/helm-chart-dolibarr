@@ -1,0 +1,48 @@
+# @formatter:off
+
+{{ if (semverCompare ">= 1.19.0-any" .Capabilities.KubeVersion.Version) }}
+apiVersion: networking.k8s.io/v1
+{{ else }}
+apiVersion: networking.k8s.io/v1beta1
+{{ end }}
+
+kind: Ingress
+metadata:
+  name: ingress-{{.Release.Name}}-dolibarr
+  annotations:
+    {{ if (semverCompare "< 1.19.0-any" .Capabilities.KubeVersion.Version) }}
+    kubernetes.io/ingress.class: nginx
+    {{ end }}
+    cert-manager.io/cluster-issuer: {{.Values.ingress.certIssuer }}
+spec:
+  {{ if (semverCompare ">= 1.19.0-any" .Capabilities.KubeVersion.Version) }}
+  ingressClassName: nginx
+  {{ end }}
+  rules:
+    - host: {{.Values.ingress.host }}
+      http:
+        paths:
+          - path: /
+
+            {{ if (semverCompare ">= 1.19.0-any" .Capabilities.KubeVersion.Version) }}
+            pathType: Prefix
+            {{ end }}
+            backend:
+
+              {{ if (semverCompare ">= 1.19.0-any" .Capabilities.KubeVersion.Version) }}
+              service:
+                name: {{.Release.Name}}-dolibarr
+                port:
+                  number: 80
+              {{ else }}
+              serviceName: {{.Release.Name}}-dolibarr
+              servicePort: 80
+              {{ end }}
+
+  tls:
+    - hosts:
+        - {{.Values.ingress.host }}
+      secretName: {{.Values.ingress.host }}.tls
+
+
+---

@@ -1,0 +1,22 @@
+# @formatter:off
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{.Release.Name}}-dolibarr-config
+data:
+
+  DOLI_DB_PASSWORD_FILE: '/var/run/secrets/db-password'
+  DOLI_DB_ROOT_PASSWORD_FILE: '/var/run/secrets/db-root-password'
+  DOLI_ADMIN_PASSWORD_FILE: '/var/run/secrets/admin-password'
+  TZ: 'Europe/Brussels'
+  DOLI_DB_HOST: {{ tpl "{{.Release.Name}}-dolibarr-db.{{.Release.Namespace}}.svc" .  }}
+  DOLI_DB_USER: 'dolibarr'
+  DOLI_DB_NAME: 'dolibarr'
+  DOLI_URL_ROOT: {{ tpl "https://{{.Values.ingress.host}}/" . }}
+  DOLI_INSTALL_AUTO: '1'
+  DOLI_ADMIN_LOGIN: 'doli_admin'
+  PHP_INI_DATE_TIMEZONE: 'Europe/Brussels'
+  PHP_INI_MEMORY_LIMIT: '256M'
+
+---
