@@ -31,7 +31,7 @@ ingress:
 
 deployment:
   imageName: docker.valuya.com/dolibarr
-  imageTag: 7
+  imageTag: 14.0.5
 
 secrets:
   skip: false
