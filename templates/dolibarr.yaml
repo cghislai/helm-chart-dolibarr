@@ -27,6 +27,8 @@ spec:
   selector:
     matchLabels: # Pods labels to match
       app: dolibarr
+  strategy:
+    type: Recreate
   template: # Pods template
     metadata:
       labels:
@@ -37,6 +39,7 @@ spec:
       {{with .Values.deployment.imagePullSecrets}}
       imagePullSecrets: {{. | toJson}}
       {{end}}
+
       containers:
         - name: dolibarr
           image: {{.Values.deployment.imageName}}:{{.Values.deployment.imageTag}}
