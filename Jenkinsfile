@@ -23,7 +23,7 @@ pipeline {
                         sh "helm dependency update"
                         sh '''
                             OUT="$(helm package ".")"
-                            OUT_PATH="$(echo "$OUT" | cut -d':' -f2)"
+                            OUT_PATH="$(echo "$OUT" | cut -d':' -f2 | xargs)"
                             echo "Packaged $CHART_PATH to $OUT_PATH"
 
                             curl --fail -vF file=@"$OUT_PATH" -u"${USER}:${PASSWORD}" "${REPO}" \
@@ -43,7 +43,7 @@ pipeline {
         failure {
           mail(
             to: 'charlyghislain@gmail.com', cc: 'yannick@valuya.be',
-            subject: "Build failed: helm-charts/dolibarr $BRANCH_NAME ${BUILD_NUMBER}",
+            subject: "Build failed: helm-charts/dolibarr ${BUILD_NUMBER}",
             body: "See job at ${BUILD_URL}"
           )
         }
