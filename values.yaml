@@ -30,7 +30,7 @@ ingress:
   certIssuer: 'selfsigned-ca-issuer'
 
 deployment:
-  imageName: docker.valuya.com/dolibarr
+  imageName: tuxgasy/dolibarr
   imageTag: 14.0.5
 
 secrets:
