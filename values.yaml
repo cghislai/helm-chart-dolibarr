@@ -8,6 +8,17 @@ db:
     password:
     rootPassword:
 
+  deployment:
+    imageName: mariadb
+    imageTag: 10.6.5
+
+  resources:
+    request:
+      memory: '256Mi'
+      cpu: '50m'
+
+  env: { }
+
   provision:
     enabled: false
     subPath: 'billing-srl-dump-20210208.sql'

@@ -62,7 +62,9 @@ data:
   MYSQL_DATABASE: 'dolibarr'
   MYSQL_USER: 'dolibarr'
   MYSQL_PASSWORD_FILE: '/var/run/secrets/db-password'
-
+  {{- range $k, $v := .Values.db.env }}
+  {{$k}}: {{$v | quote }}
+  {{- end }}
 ---
 
 apiVersion: apps/v1
@@ -88,7 +90,7 @@ spec:
       {{end}}
       containers:
         - name: dolibarr
-          image: mariadb:10
+          image: {{.Values.db.deployment.imageName}}:{{.Values.db.deployment.imageTag}}
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
@@ -108,8 +110,8 @@ spec:
             - containerPort: 3306 # mysql
           resources:
             requests:
-              cpu: "50m"
-              memory: "256Mi"
+              cpu: {{.Values.db.resources.request.cpu}}
+              memory: {{.Values.db.resources.request.memory}}
       volumes:
         - name: dolibarr-db-secrets
           secret:
