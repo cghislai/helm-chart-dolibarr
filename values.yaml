@@ -42,7 +42,7 @@ ingress:
 
 deployment:
   imageName: tuxgasy/dolibarr
-  imageTag: 14.0.5
+  imageTag: 18
 
 secrets:
   skip: false
