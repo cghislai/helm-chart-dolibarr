@@ -19,14 +19,14 @@ pipeline {
             } }
             steps {
                 container('manager') {
-                    withCredentials([usernamePassword(credentialsId: params.REPO_CREDENTIAL, passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
+                    withCredentials([usernamePassword(credentialsId: params.REPO_CREDENTIAL, passwordVariable: 'NXPASSWORD', usernameVariable: 'NXUSER')]) {
                         sh "helm dependency update"
                         sh '''
                             OUT="$(helm package ".")"
                             OUT_PATH="$(echo "$OUT" | cut -d':' -f2 | xargs)"
                             echo "Packaged $CHART_PATH to $OUT_PATH"
 
-                            curl --fail -vF file=@"$OUT_PATH" -u"${USER}:${PASSWORD}" "${REPO}" \
+                            curl --fail -vF file=@"$OUT_PATH" -u"${NXUSER}:${NXPASSWORD}" "${REPO}" \
                              && echo "Pushed to $REPO" || (echo "!!! FAILED TO PUSH ($?)" && exit 1)
                         '''
                     }
