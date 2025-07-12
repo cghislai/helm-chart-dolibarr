@@ -10,7 +10,7 @@ keywords:
 home: https://www.dolibarr.org/
 sources:
   - https://github.com/cghislai/helm-chart-dolibarr
-
+engine: gotpl
 maintainers: # (optional)
   - name: Charly Ghislain
     email: charlyghislain@gmail.com

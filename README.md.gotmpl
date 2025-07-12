@@ -1,0 +1,33 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.badgesSection" . }}
+
+{{ template "chart.description" . }}
+
+{{ template "chart.homepageLine" . }}
+
+
+## Installation
+
+To install this chart, first ensure you have added its Helm repository:
+
+```bash
+helm repo add cghislai-helm-chart-dolibarr https://cghislai.github.io/helm-chart-dolibarr
+helm repo update
+```
+
+Then, you can install the chart:
+
+```bash
+helm install my-release cghislai-helm-chart-dolibarr/dolibarr --version {{ template "chart.version" . }}
+```
+
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}
+
