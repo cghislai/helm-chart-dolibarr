@@ -82,3 +82,4 @@ jobs:
             git commit -m "Build Helm chart repository files [skip ci]"
             git push
           fi
+
