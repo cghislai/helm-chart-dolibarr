@@ -1,0 +1,84 @@
+name: Publish Helm Chart to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # Trigger on pushes to the main branch
+  workflow_dispatch: # Allow manual triggering of the workflow
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to push changes to the repository
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history for accurate index.yaml merging
+          fetch-depth: 0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.12.0 # Specify a compatible Helm version
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22' # Use a recent Go version
+
+      - name: Install helm-docs
+        run: go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
+
+      - name: Generate Helm Docs and Schema
+        run: |
+          # Assuming your Helm chart is in the root of the repository
+          helm-docs
+        working-directory: . # Ensure these commands run from your chart's root
+
+      - name: Package Helm Chart
+        run: helm package .
+        working-directory: . # Ensure this command runs from your chart's root
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Prepare Helm repository directory
+        run: mkdir -p ./docs # Create the 'docs' folder if it doesn't exist
+
+      - name: Move packaged chart and update index.yaml
+        run: |
+          # Find the packaged chart file (e.g., dolibarr-1.0.0.tgz)
+          CHART_TGZ=$(ls *.tgz | head -n 1)
+          mv "$CHART_TGZ" ./docs/
+
+          # Construct the GitHub Pages URL for your repository
+          # Replace YOUR_USERNAME and YOUR_REPOSITORY_NAME placeholders if needed,
+          # but these variables should typically resolve correctly.
+          REPO_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          
+          # Generate or update the index.yaml file
+          # If index.yaml exists, merge new chart info; otherwise, create a new one.
+          if [ -f docs/index.yaml ]; then
+            helm repo index docs --url "$REPO_URL" --merge docs/index.yaml
+          else
+            helm repo index docs --url "$REPO_URL"
+          fi
+        working-directory: . # Run from the repository root
+
+      - name: Commit and Push to GitHub Pages
+        run: |
+          git add docs/ # Add the docs folder and its contents
+          
+          # Check if there are any changes to commit to avoid empty commits
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            # [skip ci] in the commit message prevents recursive workflow triggers
+            git commit -m "Build Helm chart repository files [skip ci]"
+            git push
+          fi

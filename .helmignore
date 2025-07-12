@@ -1,2 +1,8 @@
 *.private.*
 */*.private.*
+resources/
+.github/
+.idea/
+.gitignore
+renovate.json
+docs/
