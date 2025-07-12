@@ -1,47 +1,69 @@
-# Dolibarr
+# dolibarr
 
-To deploy this chart, create/adjust your values.yaml file then:
+![Version: 1.0.5](https://img.shields.io/badge/Version-1.0.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 18](https://img.shields.io/badge/AppVersion-18-informational?style=flat-square)
 
-1. Create the namespace resources, and update your pulLSecret if required for local pulls.
+Dolibarr stack
 
-```
-kubectl create namespace dolibarr
-kubectl create secret generic docker-config-json \
-         --from-file=.dockerconfigjson=/home/cghislai/.docker/config.json \
-         --type=kubernetes.io/dockerconfigjson \
-         --namespace dolibarr
-kubectl patch serviceaccount default -n dolibarr -p '{"imagePullSecrets": [{"name": "docker-config-json"}]}'
-```
-1bis: Use minikube mount "/home/cghislai/dev/charlyghislain/res/dolibarr:/minkube-data" if you need to provision
-from hostpath /minikube-data.
+**Homepage:** <https://www.dolibarr.org/>
 
-2. Deploy the stack
+## Maintainers
 
-```
-helm dependency update
-helm install -n dolibarr -f values.yaml dolibarr . 
-```
+| Name | Email | Url |
+| ---- | ------ | --- |
+| Charly Ghislain | <charlyghislain@gmail.com> | <https://github.com/cghislai> |
 
-1. Adjust your /etc/hosts file. Check the ingress to see hostname / ip mapping required.
+## Source Code
 
-```
-kubectl get ingress -n dolibarr
-```
+* <https://github.com/cghislai/helm-chart-dolibarr>
 
-## Post steps
+## Requirements
 
-- Complete install:  
+Kubernetes: `>= 1.17.0-any`
 
-## Provisionning
+## Values
 
-- Locally, use minikube mount to put the dump in the minikube host, then update values to use hostpath + subPath.
-- Provide the pvc any other way on cluster
+### Mariadb deployment values
 
-## Generated secrets
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| db.deployment.imageName | string | `"mariadb"` | The mariadb deployment image name (repository + image name) |
+| db.deployment.imageTag | string | `"10.6.5"` | The mariadb deployment image tag |
+| db.env | object | `{}` | Mariadb deployment env. Key-values that will be put in a configMap used for the pod env. |
+| db.persistence.annotations | object | `{}` | Annotations of the persistent volume claim |
+| db.persistence.labels | object | `{}` | Labels of the persistent volume claim |
+| db.persistence.size | string | `"3Gi"` | Size of the persistent volume claim |
+| db.provision.claimName | string | `""` | Whether to mount the dump from an existing PVC. When provided, hostPath must be empty. |
+| db.provision.enabled | bool | `false` | Whether to enable mariadb provision. This will mount an init db script in /docker-entrypoint-initdb.d/ in the pod |
+| db.provision.hostPath | string | `""` | Whether to mount the dump from a hostPath (eg minikube). When provided, claimName is ignored. |
+| db.provision.subPath | string | `"billing-srl-dump-20210208.sql"` | The path within the volume/hostPath containing the dump to load |
+| db.resources | object | `{"request":{"cpu":"50m","memory":"256Mi"}}` | Mariadb deployment resources (only requests) |
+| db.secrets.generate | bool | `true` | Generate the secret content on deploy, if it does not exist already |
+| db.secrets.password | string | `nil` | The mariadb password to set in the secret, if 'generate' is false. This will override any existing value |
+| db.secrets.rootPassword | string | `nil` | The mariadb root password to set in the secret, if 'generate' is false. This will override any existing value |
+| db.secrets.skip | bool | `false` | Set this to true to ignore provisioning a secret containing the mariadb passwords. When false, a secret will be provisioned. |
+| db.service.annotations | object | `{}` | Annotations of the service |
+| db.service.labels | object | `{}` | Labels of the service |
 
-```
-echo -n "Dolbarr admin password: " ;\
-kubectl  -n dolibarr  get secret dolibarr-dolibarr-secrets -o json | jq -r '.data["admin-password"]' | base64 --dec; \
-echo; \
-```  
+### Dolibarr deployment
 
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| deployment.imageName | string | `"tuxgasy/dolibarr"` | Deployment image name (repo + image name) |
+| deployment.imageTag | int | `18` | Deployment image tag |
+| documents.persistence.annotations | object | `{}` | Annotations of the documents pvc |
+| documents.persistence.enabled | bool | `false` | Whether to create a pvc for the /var/www/documents directory. |
+| documents.persistence.labels | object | `{}` | Labels of the documents pvc |
+| documents.persistence.size | string | `"1Gi"` | Size of the documents pvc |
+| secrets.adminPassword | string | `""` | When generate is false, the admin password to put in the secret. Overwrites existing values |
+| secrets.generate | bool | `true` | Whether to generate the dolibarr admin password on secret creation. |
+| secrets.skip | bool | `false` | Dolibarr admin password secret. When true, no secret is provisioned. |
+
+### Ingress
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| ingress.certIssuer | string | `"selfsigned-ca-issuer"` | The ingress certIssuer. Value of a 'cert-manager.io/cluster-issuer' annotation on the ingress |
+| ingress.host | string | `"dolibarr.cgcloud.local"` | The ingress host |
+
+----------------------------------------------
+Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)

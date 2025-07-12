@@ -1,55 +1,111 @@
 db:
 
-  #   Unspecified secrets will be randomly generated if they dont exist.
-  #   Password specified here (both) will overwrite the secrets. Delete secrest to regenerate passwords
   secrets:
+    # -- Set this to true to ignore provisioning a secret containing the mariadb passwords.
+    # When false, a secret will be provisioned.
+    # @section -- Mariadb deployment values
     skip: false
+    # -- Generate the secret content on deploy, if it does not exist already
+    # @section -- Mariadb deployment values
     generate: true
+    # -- The mariadb password to set in the secret, if 'generate' is false. This will override any existing value
+    # @section -- Mariadb deployment values
     password:
+    # -- The mariadb root password to set in the secret, if 'generate' is false. This will override any existing value
+    # @section -- Mariadb deployment values
     rootPassword:
 
   deployment:
+    # -- The mariadb deployment image name (repository + image name)
+    # @section -- Mariadb deployment values
     imageName: mariadb
+    # -- The mariadb deployment image tag
+    # @section -- Mariadb deployment values
     imageTag: 10.6.5
 
+  # -- Mariadb deployment resources (only requests)
+  # @section -- Mariadb deployment values
   resources:
     request:
       memory: '256Mi'
       cpu: '50m'
 
+  # -- Mariadb deployment env. Key-values that will be put in a configMap used for the pod env.
+  # @section -- Mariadb deployment values
   env: { }
 
   provision:
+    # -- Whether to enable mariadb provision. This will mount an init db script in /docker-entrypoint-initdb.d/ in the pod
+    # @section -- Mariadb deployment values
     enabled: false
+    # -- Whether to mount the dump from a hostPath (eg minikube). When provided, claimName is ignored.
+    # @section -- Mariadb deployment values
+    hostPath: ''
+    # -- Whether to mount the dump from an existing PVC. When provided, hostPath must be empty.
+    # @section -- Mariadb deployment values
+    claimName: ''
+    # -- The path within the volume/hostPath containing the dump to load
+    # @section -- Mariadb deployment values
     subPath: 'billing-srl-dump-20210208.sql'
-    # Hostpath or claimName
-    # See README to mount local path. Its minkube
-    hostPath: '/minkube-data'
-    claimName:
 
   persistence:
-    labels: { }
-    annotations: { }
+    # -- Size of the persistent volume claim
+    # @section -- Mariadb deployment values
     size: 3Gi
+    # -- Labels of the persistent volume claim
+    # @section -- Mariadb deployment values
+    labels: { }
+    # -- Annotations of the persistent volume claim
+    # @section -- Mariadb deployment values
+    annotations: { }
 
   service:
+    # -- Labels of the service
+    # @section -- Mariadb deployment values
     labels: { }
+    # -- Annotations of the service
+    # @section -- Mariadb deployment values
     annotations: { }
 
 ingress:
+  # -- The ingress host
+  # @section -- Ingress
   host: 'dolibarr.cgcloud.local'
+  # -- The ingress certIssuer. Value of a 'cert-manager.io/cluster-issuer' annotation on the ingress
+  # @section -- Ingress
   certIssuer: 'selfsigned-ca-issuer'
 
+
 deployment:
+  # -- Deployment image name (repo + image name)
+  # @section -- Dolibarr deployment
   imageName: tuxgasy/dolibarr
+  # -- Deployment image tag
+  # @section -- Dolibarr deployment
   imageTag: 18
 
 secrets:
+  # -- Dolibarr admin password secret. When true, no secret is provisioned.
+  # @section -- Dolibarr deployment
   skip: false
+  # -- Whether to generate the dolibarr admin password on secret creation.
+  # @section -- Dolibarr deployment
+  generate: true
+  # -- When generate is false, the admin password to put in the secret. Overwrites existing values
+  # @section -- Dolibarr deployment
+  adminPassword: ''
 
 documents:
   persistence:
+    # -- Whether to create a pvc for the /var/www/documents directory.
+    # @section -- Dolibarr deployment
     enabled: false
+    # -- Labels of the documents pvc
+    # @section -- Dolibarr deployment
     labels: { }
+    # -- Annotations of the documents pvc
+    # @section -- Dolibarr deployment
     annotations: { }
+    # -- Size of the documents pvc
+    # @section -- Dolibarr deployment
     size: 1Gi
