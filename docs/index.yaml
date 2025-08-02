@@ -3,7 +3,27 @@ entries:
   dolibarr:
   - apiVersion: v2
     appVersion: "18"
-    created: "2025-07-12T12:34:27.408731012Z"
+    created: "2025-08-02T07:29:58.353355244Z"
+    description: Dolibarr stack
+    digest: 2d841e46034b2d750d662c947e5a98753a795de7b9ed59f5c93e8a478df16a65
+    home: https://www.dolibarr.org/
+    keywords:
+    - jenkins
+    kubeVersion: '>= 1.24.0-any'
+    maintainers:
+    - email: charlyghislain@gmail.com
+      name: Charly Ghislain
+      url: https://github.com/cghislai
+    name: dolibarr
+    sources:
+    - https://github.com/cghislai/helm-chart-dolibarr
+    type: application
+    urls:
+    - https://cghislai.github.io/helm-chart-dolibarr/dolibarr-1.0.6.tgz
+    version: 1.0.6
+  - apiVersion: v2
+    appVersion: "18"
+    created: "2025-08-02T07:29:58.351784403Z"
     description: Dolibarr stack
     digest: 0ff88281591a4a95776428cb2d2352d5245f654ec59d4ac93f9ddc9243dfbe30
     home: https://www.dolibarr.org/
@@ -21,4 +41,4 @@ entries:
     urls:
     - https://cghislai.github.io/helm-chart-dolibarr/dolibarr-1.0.5.tgz
     version: 1.0.5
-generated: "2025-07-12T12:34:27.406766987Z"
+generated: "2025-08-02T07:29:58.349768624Z"
