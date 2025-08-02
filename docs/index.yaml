@@ -3,9 +3,9 @@ entries:
   dolibarr:
   - apiVersion: v2
     appVersion: "18"
-    created: "2025-07-12T12:17:09.416141743Z"
+    created: "2025-07-12T12:34:27.408731012Z"
     description: Dolibarr stack
-    digest: 518b69aacbac96d923cb365346a29262a8c2fa0a74ef03ba8eb0e62f98e395ed
+    digest: 0ff88281591a4a95776428cb2d2352d5245f654ec59d4ac93f9ddc9243dfbe30
     home: https://www.dolibarr.org/
     keywords:
     - jenkins
@@ -21,4 +21,4 @@ entries:
     urls:
     - https://cghislai.github.io/helm-chart-dolibarr/dolibarr-1.0.5.tgz
     version: 1.0.5
-generated: "2025-07-12T12:17:09.414393483Z"
+generated: "2025-07-12T12:34:27.406766987Z"
