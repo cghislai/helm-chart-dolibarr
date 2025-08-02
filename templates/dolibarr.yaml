@@ -35,7 +35,7 @@ spec:
         app: dolibarr
     spec:
       securityContext:
-        fsGroup: 1000
+        fsGroup: 33 # www-data
       {{with .Values.deployment.imagePullSecrets}}
       imagePullSecrets: {{. | toJson}}
       {{end}}
@@ -53,6 +53,10 @@ spec:
             {{ if .Values.documents.persistence.enabled }}
             - mountPath: /var/www/documents
               name: dolibarr-documents
+            {{ end }}
+            {{ if .Values.custom.persistence.enabled }}
+            - mountPath: /var/www/html/custom
+              name: dolibarr-custom
             {{ end }}
           ports:
             - containerPort: 80 # http
@@ -80,6 +84,11 @@ spec:
         - name: dolibarr-documents
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-dolibarr-documents
+        {{ end }}
+        {{ if .Values.custom.persistence.enabled }}
+        - name: dolibarr-custom
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-dolibarr-custom
         {{ end }}
 ---
 

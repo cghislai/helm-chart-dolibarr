@@ -109,3 +109,19 @@ documents:
     # -- Size of the documents pvc
     # @section -- Dolibarr deployment
     size: 1Gi
+
+# Custom modules persistence
+custom:
+  persistence:
+    # -- Whether to create a pvc for the /var/www/html/custom directory.
+    # @section -- Dolibarr deployment
+    enabled: false
+    # -- Labels of the documents pvc
+    # @section -- Dolibarr deployment
+    labels: { }
+    # -- Annotations of the documents pvc
+    # @section -- Dolibarr deployment
+    annotations: { }
+    # -- Size of the documents pvc
+    # @section -- Dolibarr deployment
+    size: 1Gi

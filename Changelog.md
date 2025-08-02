@@ -1,5 +1,31 @@
 # Changelog
 
+## v1.0.6
+
+- Min k8s version 1.24
+- Update fsgroup from 1000 to 33 (www-data)
+- Added pvc for /var/www/html/custom directory (custom modules)
+
+```yaml
+# Custom modules persistence
+custom:
+  persistence:
+    # -- Whether to create a pvc for the /var/www/html/custom directory.
+    # @section -- Dolibarr deployment
+    enabled: false
+    # -- Labels of the documents pvc
+    # @section -- Dolibarr deployment
+    labels: { }
+    # -- Annotations of the documents pvc
+    # @section -- Dolibarr deployment
+    annotations: { }
+    # -- Size of the documents pvc
+    # @section -- Dolibarr deployment
+    size: 1Gi
+
+```
+
+
 ## v1.0.5
 
 - Fixed secrets values section. Previously, 'generate' value was taken from the db secret section.

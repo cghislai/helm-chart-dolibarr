@@ -1,0 +1,19 @@
+# @formatter:off
+{{ if .Values.custom.persistence.enabled }}
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{.Release.Name}}-dolibarr-custom
+  labels: {{ .Values.custom.persistence.labels  | toJson }}
+  annotations: {{ .Values.custom.persistence.annotations  | toJson }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.custom.persistence.size }}
+
+---
+
+{{ end }}
